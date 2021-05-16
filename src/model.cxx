@@ -52,21 +52,54 @@ void Model::play_move(Position pos)
 Position_set Model::find_flips_(Position current, Dimensions dir) const
 {
     Position_set result = {};
-    //loop through start + dir, start + 2*dir...
+    // Finding the max times we need to iterate
+    // First initialized to the height of the board;
+    // if width is >= height, then it is max is width
+    int max_iteration = board_.dimensions().height;
+    if (board_.dimensions().width >= board_.dimensions().height){
+        max_iteration = board_.dimensions().width;
+    }
 
-    //if we reach position that goes off the board or is unoccupied, result is
-    //empty
+    // loop through start + dir, start + 2 * dir...
+    for (int i = 1; i < max_iteration; ++i) {
+        Position square = current + i * dir;
 
-    //if position contains opposing player tile then add to position set
+        // Case 1: if we reach position that goes off the board or is
+        // unoccupied, result is empty
 
-    //if we reach a position containing the current player's tile then
-    // return the result
+        //1a: handling the cases where it goes off the board
+        if ((square.x > board_.dimensions().width) || (square.x < 0)) {
+            //if position x value exceeds width or less than 0
+            return {};
+        } else if ((square.y > board_.dimensions().height) || (square.y < 0)) {
+            //if position y value exceeds width or less than 0
+            return {};
+        }
+            //1b: handling case where it is unoccupied
+        else if (board_[square] == Player::neither) {
+            return {};
+        }
 
+        //Case 2: If position contains opposing player tile then add to
+        // position set
+        Player opposing_player = other_player(turn_);
+        if (board_[square] == opposing_player) {
+            result |= {square};
+        }
+        //Case 3: If position containing current player tile
+        // then return result
+        else if (board_[square] == turn_) {
+            return result;
+        }
+    }
+    return result; // CLion got angry at me for not returning anything
 }
 
 Position_set Model::evaluate_position_(Position pos) const
 {
-
+    // TODO
+    Position_set result = {};
+    return result;
 }
 
 //helper to check if the center is filled
@@ -83,9 +116,22 @@ bool Model::center_filled_()
 
 void Model::compute_next_moves_()
 {
+
     next_moves_.clear(); //clear next moves
 
-
+    //Case 1: Not yet filled the center: Opening Phase
+    if (!center_filled_()) {
+        for (Position square: board_.center_positions()) {
+            if (board_[square] == Player::neither) {
+                next_moves_[square] = {square};
+            }
+        }
+    }
+    //Case 2: Center Filled: Main Phase
+    else {
+        // TODO
+    }
+}
 }
 
 bool Model::advance_turn_()
