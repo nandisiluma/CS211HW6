@@ -132,7 +132,6 @@ void Model::compute_next_moves_()
         // TODO
     }
 }
-}
 
 bool Model::advance_turn_()
 {
